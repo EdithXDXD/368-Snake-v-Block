@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
@@ -65,18 +66,14 @@ public class SimpleMain extends Application {
 				if (b.getBoundsInParent().intersects(player.mCoins.get(0).getBoundsInParent()))
 				{
 					// check which exact block is intersecting
-					ObservableList<Node> blockNodes = b.getChildren();
-					Block collidedBlock = null;
-					for (int i = 0; i < blockNodes.size(); ++i)
-					{
-						Block blockNode = (Block) ((StackPane) blockNodes.get(i)).getChildren().get(0);
-						if (blockNode.getBoundsInParent().intersects(player.mCoins.get(0).getBoundsInParent())) {
-							collidedBlock = blockNode;
-						}
-					}
 					
-					if (collidedBlock != null && collidedBlock.getCost() != 0) {
-						System.out.println("collided block is " + collidedBlock.getCost());
+					double location = player.mCoins.get(0).getCenterX();
+					int index = (int) (location * 10 / SCREEN_WIDTH /2);
+					StackPane sp = (StackPane)(b.getChildren().get(index));
+					int blockCost = ((Block)sp.getChildren().get(0)).getCost();
+					
+					if (blockCost > 0) {
+						System.out.println("Index: " + index + "Block Cost: " + blockCost);
 					}
 					else {
 						b.setLayoutY(b.getLayoutY() + 2);

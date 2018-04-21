@@ -3,7 +3,9 @@ import java.util.Vector;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -52,21 +54,38 @@ public class SimpleMain extends Application {
 		timer = new AnimationTimer(){
 			@Override
 			public void handle(long now) {
-				for (int i = 0; i < blockPanes.size(); ++i) {
-					moveBlock((Block)blockPanes.get(i).getChildren().get(0));
-				}
+//				for (int i = 0; i < blockPanes.size(); ++i) {
+//					moveBlock((Block)blockPanes.get(i).getChildren().get(0));
+//				}
+				moveBlock(blockBox);
 			}
 
-			private void moveBlock(Block b) {
+			private void moveBlock(HBox b) {
 				// TODO Auto-generated method stub
 				if (b.getBoundsInParent().intersects(player.mCoins.get(0).getBoundsInParent()))
 				{
-					timer.stop();
+					// check which exact block is intersecting
+					ObservableList<Node> blockNodes = b.getChildren();
+					Block collidedBlock = null;
+					for (int i = 0; i < blockNodes.size(); ++i)
+					{
+						Block blockNode = (Block) ((StackPane) blockNodes.get(i)).getChildren().get(0);
+						if (blockNode.getBoundsInParent().intersects(player.mCoins.get(0).getBoundsInParent())) {
+							collidedBlock = blockNode;
+						}
+					}
+					
+					if (collidedBlock != null && collidedBlock.getCost() != 0) {
+						System.out.println("collided block is " + collidedBlock.getCost());
+					}
+					else {
+						b.setLayoutY(b.getLayoutY() + 2);
+					}
 				}
 				else {
-					b.update();
-				
+					b.setLayoutY(b.getLayoutY() + 2);
 				}
+				
 			}
 		};
 		player.addCoin(7);

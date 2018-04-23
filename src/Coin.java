@@ -1,5 +1,9 @@
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+/**
+ * Coin is the way how player could add lifes
+ * 
+ * */
 
 public class Coin extends Circle {
 	public int x;

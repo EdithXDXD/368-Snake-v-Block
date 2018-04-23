@@ -12,9 +12,16 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
+import javafx.util.Duration;
+/**
+ * Simple main is the stage for the 
+ * game
+ * 
+ * */
 public class SimpleMain extends Application {
 
 	Pane p;
@@ -53,29 +60,50 @@ public class SimpleMain extends Application {
 		mainScene = new Scene(p, SCREEN_WIDTH, SCREEN_HEIGHT);
 		player = new Player(mainScene, this);
 		timer = new AnimationTimer(){
+			boolean collided = false;
+			private long lastUpdate = 0;
 			@Override
 			public void handle(long now) {
-//				for (int i = 0; i < blockPanes.size(); ++i) {
-//					moveBlock((Block)blockPanes.get(i).getChildren().get(0));
-//				}
-				moveBlock(blockBox);
+				// if there's a collision then I want the block to freeze for a second
+				// so that the user could see the process of breaking blocks 
+				// Not working though right now
+				if (collided) {
+					if (now - lastUpdate >= (long)500000000) {
+						System.out.println("Waited" + now + " " + lastUpdate);
+						moveBlock(blockBox, now);
+						lastUpdate = now;
+					} 
+				}
+				else {
+					moveBlock(blockBox, now);
+				}
+				
 			}
 
-			private void moveBlock(HBox b) {
+			private void moveBlock(HBox b, long now) {
 				// TODO Auto-generated method stub
-				if (b.getBoundsInParent().intersects(player.mCoins.get(0).getBoundsInParent()))
+				if (b.getBoundsInParent().intersects(player.life.getBoundsInParent()))
 				{
 					// check which exact block is intersecting
 					
 					double location = player.mCoins.get(0).getCenterX();
 					int index = (int) (location * 10 / SCREEN_WIDTH /2);
 					StackPane sp = (StackPane)(b.getChildren().get(index));
-					int blockCost = ((Block)sp.getChildren().get(0)).getCost();
-					
+					Block currBlock = (Block)sp.getChildren().get(0);
+					int blockCost = currBlock.getCost();
+					currBlock.mediaPlayer.stop();
 					if (blockCost > 0) {
-						System.out.println("Index: " + index + "Block Cost: " + blockCost);
+						System.out.println("Index: " + index + " Block Cost: " + blockCost);
+						lastUpdate = now;
+						collided = true;
+						currBlock.mediaPlayer.play();
+						player.collideBlock();
+						currBlock.collide(); 
+						((Text)sp.getChildren().get(1)).setText("" + currBlock.getCost());
 					}
 					else {
+						// end collision
+						collided = false;
 						b.setLayoutY(b.getLayoutY() + 2);
 					}
 				}
@@ -99,9 +127,16 @@ public class SimpleMain extends Application {
 			blockPanes.add(blockNum);
 		}
 		
+		
+		
 	}
 	public static void main(String[] args) {
 		launch(args);
+	}
+
+	public void endGame() {
+		// TODO Auto-generated method stub
+		timer.stop();
 	}
 
 }

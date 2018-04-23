@@ -6,7 +6,10 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
+/**
+ * Player is the main character 
+ * 
+ * */
 public class Player {
 	public Vector<Circle> mCoins;
 	public int coinNum;
@@ -33,6 +36,18 @@ public class Player {
 		
 	}
 	
+	public void collideBlock() {
+		coinNum -= 1;
+		if (coinNum < 0) {
+			main.endGame();
+		}
+		else {
+			mCoins.get(mCoins.size() - 1).setCenterY(SimpleMain.SCREEN_HEIGHT*2);;
+			mCoins.remove(mCoins.size() - 1);
+			life.setText("" + coinNum);
+		}
+		
+	}
 	private void initializePlayer() {
 		Circle c = new Circle(SimpleMain.SCREEN_WIDTH/2.0, SimpleMain.SCREEN_HEIGHT*2/3, RADIUS, COINSTYLE);
 		
@@ -58,7 +73,6 @@ public class Player {
 	}
 	
 	private void createCircle() {
-			
 		Circle c = new Circle(mCoins.get(mCoins.size() - 1).getCenterX(),  
 				mCoins.get(mCoins.size() - 1).getCenterY() + RADIUS*2.1, RADIUS, COINSTYLE);
 		// bind to its c

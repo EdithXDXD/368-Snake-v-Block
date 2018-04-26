@@ -1,73 +1,77 @@
 import java.io.File;
 
-import javafx.animation.TranslateTransition;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.util.Duration;
+import javafx.scene.text.Text;
 
-
-/**
- * Block is the class for the barrier
- * It extends Rectangle class
- * 
- * */
-public class Block extends Rectangle {
-	private Color recColor;
+public class Block extends StackPane {
+	private Rectangle blockRec;
+	private Color blockColor;
+	private Text t;
 	private int cost;
 	private int speed;
 	Media collisionSound;
 	public MediaPlayer mediaPlayer;
-
-	Block(int x, int order) {
-		super(SimpleMain.SCREEN_WIDTH/5.5, SimpleMain.SCREEN_WIDTH/5.5, Color.rgb(66, 244, 209));
-		if (x == 0) {
-			this.setFill(Color.TRANSPARENT);
+	
+	public Block(int cost, int order) {
+		super();
+		blockRec = new Rectangle(SimpleMain.SCREEN_WIDTH/5.5, SimpleMain.SCREEN_WIDTH/5.5, Color.rgb(66, 244, 209));
+		if (cost == 0) {
+			blockRec.setFill(Color.TRANSPARENT);
 		}
-		this.setX(SimpleMain.SCREEN_WIDTH/5.0 * order);
-		this.setY(0);
-		cost = x;
+		blockRec.setX(SimpleMain.SCREEN_WIDTH/5 * order);
+		blockRec.setY(-50);// negative so that the user would not view the generation of the blocks
+		
+		this.cost = cost;
 		speed = 5;
+		
 		String url = "src/collision.wav";
 		collisionSound = new Media(new File(url).toURI().toString());
 		mediaPlayer = new MediaPlayer(collisionSound);
+
+		t = new Text();
+		if (cost > 0) {
+			t.setText(cost +"");
+		}
+		else {
+			t.setText(" ");
+		}
+		t.setStyle("-fx-font-family: TRON; -fx-font-size: 20;");
+		this.getChildren().addAll(blockRec, t);
 	}
-	
-	public void setLocation(double x, double y)
-	{
-		this.setX(x);
-		this.setY(y);
+
+	public Rectangle getBlockRec() {
+		return blockRec;
+	}
+
+	public Color getBlockColor() {
+		return blockColor;
 	}
 
 	public int getCost() {
 		return cost;
 	}
-	
+	public void setCost(int cost) {
+		this.cost = cost;
+	}
+
 	public int getSpeed() {
 		return speed;
 	}
-
-	public void setSpeed(int speed) {
-		this.speed = speed;
-	}
 	
-	public void update() {
-		setY(getY() + speed); 
-		System.out.println(getY());
+	public void collide() {
+		setCost(cost - 1);
+		if (cost > 0) {
+			t.setText(cost + "");
+		}
+		else {
+			t.setText("");
+			blockRec.setFill(Color.TRANSPARENT);
+		}
 	}
 
-	public void collide() {
-		// TODO Auto-generated method stub
-		cost --;
-		
-		if (cost == 0) {
-			// delete the block
-			this.setFill(Color.TRANSPARENT);
-		}
-		
-	}
+	
 }

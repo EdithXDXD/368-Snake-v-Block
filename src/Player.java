@@ -36,7 +36,7 @@ public class Player {
 		
 	}
 	
-	public void collideBlock() {
+	public void collide() {
 		coinNum -= 1;
 		if (coinNum < 0) {
 			main.endGame();

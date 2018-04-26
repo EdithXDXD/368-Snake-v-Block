@@ -14,6 +14,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -25,10 +26,10 @@ import javafx.util.Duration;
 public class SimpleMain extends Application {
 
 	Pane p;
-	HBox blockBox;
 	Player player;
+	HBox blockBox;
 	Scene mainScene;
-	Vector<StackPane> blockPanes;
+	Vector<Block> blocks;
 	public AnimationTimer timer;
 	final static double SCREEN_WIDTH = 400;
 	final static double SCREEN_HEIGHT = 640;
@@ -49,16 +50,18 @@ public class SimpleMain extends Application {
 		// TODO Auto-generated method stub
 		p.getChildren().addAll(player.mCoins);
 		p.getChildren().add(player.life);
-		blockBox.getChildren().addAll(blockPanes);
 		p.getChildren().add(blockBox);
+		
 	}
 
 	private void initializeVars () {
 		p = new Pane();
-		blockBox = new HBox(5);
-		blockBox.setPadding(new Insets(5,5,5,5));
+
 		mainScene = new Scene(p, SCREEN_WIDTH, SCREEN_HEIGHT);
 		player = new Player(mainScene, this);
+		blocks = new Vector<>();
+		blockBox = new HBox(5);
+		blockBox.setPadding(new Insets(5, 5, 5, 5));
 		timer = new AnimationTimer(){
 			boolean collided = false;
 			private long lastUpdate = 0;
@@ -82,51 +85,47 @@ public class SimpleMain extends Application {
 
 			private void moveBlock(HBox b, long now) {
 				// TODO Auto-generated method stub
-				if (b.getBoundsInParent().intersects(player.life.getBoundsInParent()))
+		
+				if (b.getBoundsInParent().intersects(player.mCoins.get(0).getBoundsInParent()) ) 
 				{
-					// check which exact block is intersecting
-					
 					double location = player.mCoins.get(0).getCenterX();
 					int index = (int) (location * 10 / SCREEN_WIDTH /2);
-					StackPane sp = (StackPane)(b.getChildren().get(index));
-					Block currBlock = (Block)sp.getChildren().get(0);
-					int blockCost = currBlock.getCost();
-					currBlock.mediaPlayer.stop();
-					if (blockCost > 0) {
-						System.out.println("Index: " + index + " Block Cost: " + blockCost);
-						lastUpdate = now;
+					Block currBlock = (Block)b.getChildren().get(index);
+					currBlock.mediaPlayer.stop();// clear up the playing sound queue
+					
+					if (currBlock.getCost() > 0) {
+						// if collision 
+						System.out.println("Index: " + index + " Block Cost: " + currBlock.getCost());
 						collided = true;
+						lastUpdate = now;
+						
 						currBlock.mediaPlayer.play();
-						player.collideBlock();
-						currBlock.collide(); 
-						((Text)sp.getChildren().get(1)).setText("" + currBlock.getCost());
+						// update the curr pane
+						currBlock.collide();
+						player.collide();
+						
 					}
 					else {
-						// end collision
 						collided = false;
 						b.setLayoutY(b.getLayoutY() + 2);
-					}
+					}			
 				}
 				else {
+					collided = false;
 					b.setLayoutY(b.getLayoutY() + 2);
-				}
-				
+				}	
 			}
 		};
 		player.addCoin(7);
 		
-		blockPanes = new Vector<>();
 		Random r = new Random();
 		for (int i = 0; i < 5; ++i)
 		{
-			StackPane blockNum = new StackPane();
 			Block b = new Block(r.nextInt(player.mCoins.size()) + 1, i); 
-			Text t = new Text();
-			t.setText(b.getCost() +"");
-			blockNum.getChildren().addAll(b, t);
-			blockPanes.add(blockNum);
+			blocks.add(b);
 		}
 		
+		blockBox.getChildren().addAll(blocks);
 		
 		
 	}
